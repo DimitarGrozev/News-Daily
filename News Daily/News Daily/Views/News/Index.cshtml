@@ -8,11 +8,22 @@
 	<link href="~/css/news.css" rel="stylesheet" />
 </head>
 
+<div>
+	<input type="hidden" value="@Model.Topic" class="topic"/>
+</div>
 <section class="rp-search">
 	<div class="container">
 		<div class="row">
 			<div class="col-12">
 				<div class="d-flex form-inline align-content-center justify-content-center">
+					<div class="d-flex">
+						<div class="form-group mx-sm-3 mb-2 ml-2">
+							<label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label>
+							<select class="form-control" asp-items="Model.SortDropdown" id="sort-string">
+								<option selected value="">Sort By</option>
+							</select>
+						</div>
+					</div>
 					<div class="d-flex">
 						<div class="form-group mx-sm-3 mb-2">
 							<label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Language</label>
@@ -27,14 +38,7 @@
 						</div>
 						<button type="submit" class="mb-2 btn-info btn" id="search-btn">Search</button>
 					</div>
-					<div class="d-flex">
-						<div class="form-group mx-sm-3 mb-2 ml-2">
-							<label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label>
-							<select class="form-control" asp-items="Model.SortDropdown" id="sort-string">
-								<option selected value="">Sort By</option>
-							</select>
-						</div>
-					</div>
+
 					<div class="d-flex">
 						<div class="form-group mx-sm-3 download-btn">
 							<button type="button" class="mb-2 btn-info btn">Export</button>
@@ -75,7 +79,9 @@
 <div class="rp-pagination">
 
 	<button type="button" style="display:none" id="prev-btn"
-			class="btn btn-info">Previous</button>
+			class="btn btn-info">
+		Previous
+	</button>
 
 	<button id="next-btn"
 			class="btn btn-info">
@@ -85,78 +91,13 @@
 
 </div>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/download.js"></script>
 <script>
 	var myArr = [];
-	$(document).on('click', '.download-btn', function (x) {
-		x.preventDefault();
-
-		var obj = { "SearchString": $('#searchString').val(), "SortString": $('#sort-string').val(), "LanguageString": $('#language').val() };
-		var articles = JSON.stringify(obj);
-
-		$.ajax({
-			url: '/News/Download/',
-			type: "POST",
-			xhrFields: {
-				responseType: 'blob'
-			},
-			data: { 'articles': articles },
-			success: function (data) {
-				var a = document.createElement('a');
-				var url = window.URL.createObjectURL(data);
-				a.href = url;
-				a.download = 'articles.xlsx';
-				document.body.append(a);
-				a.click();
-				a.remove();
-				window.URL.revokeObjectURL(url);
-			},
-
-		})
-	});
 </script>
-<script>
 
-	function SearchBtn() {
-		page = 1;
-		var language = $('#language').val();
-		var searchString = $('#searchString').val();
-		var sortString = $('#sort-string').val();
-		$.ajax({
-			url: '/News/Index/',
-			type: "GET",
+<script src="~/js/search.js"></script>
 
-			data: {
-				'SearchString': searchString,
-				'LanguageString': language,
-				'SortString': sortString,
-				"IsAjax": true
-			},
-			success: function (data) {
-				var urlToImageCollection = document.getElementsByClassName("takeUrlToImage");
-				var urlCollection = document.getElementsByClassName("takeURL");
-				var titleCollection = document.getElementsByClassName("takeTitle");
-				var descCollection = document.getElementsByClassName("takeDescription");
-				var publishedAtCollection = document.getElementsByClassName("takePublishedAt");
-				console.log(titleCollection);
-				$('#replace-container').replaceWith(data);
-				changeArr(urlToImageCollection, urlCollection, titleCollection, descCollection, publishedAtCollection);
-				$('#prev-btn').css("display", "none");
-			},
-
-		});
-	}
-	function changeArr(urlToImageCollection, urlCollection, titleCollection, descCollection, publishedAtCollection) {
-		myArr = [];
-		for (let i = 0; i < 20; i++) {
-			myArr.push(makeObject(titleCollection.item(i).value, descCollection.item(i).value, urlCollection.item(i).value, publishedAtCollection.item(i).value, urlToImageCollection.item(i).value));
-		}
-		console.log(myArr);
-	}
-	$('#search-btn').click(() => {
-		SearchBtn();
-	})
-
-</script>
 
 <script>
 	function makeObject(title, description, url, publishedAt, urlToImage) {
@@ -177,7 +118,7 @@
 			console.log("wlizam tuk");
 			$('#prev-btn').css("display", "block");
 		}
-		if (page == 4) {
+		if (page == 8) {
 			$('#next-btn').css("display", "none");
 		}
 		var div = $('#replace-container')
@@ -216,48 +157,4 @@
 			div.replaceWith(htmlToRplaceWith);
     });
 </script>
-
-<script>
-	$(document).on('click', '#prev-btn', function (x) {
-
-		page -= 1;
-		if (page == 1) {
-			$('#prev-btn').css("display", "none");
-		}
-		if (page < 4) {
-			$('#next-btn').css("display", "block");
-		}
-		var div = $('#replace-container')
-		var htmlToRplaceWith = `<div class="container" id="replace-container">
-		<div class="row">`
-		for (let i = (page - 1) * 5; i < (page - 1) * 5 + 5; i++) {
-			htmlToRplaceWith += `
-				<div class="d-flex col-12 rp-card">
-					<div class="col-4 rp-img-container">
-						<div class="rp-img" style="background-image:url('${myArr[i].UrlToImage}');">
-						</div>
-					</div>
-					<div class="d-flex flex-column col-6">
-						<a class="rp-title" href="${myArr[i].Url}" target="_blank">${myArr[i].Title}</a>
-						<div class="pb-2 d-flex justify-content-between">
-
-							<span class="rp-date">${myArr[i].PublishedAt}</span>
-						</div>
-						<q class="rp-quote">${myArr[i].Description}</q> <br>
-					</div>
-
-				</div>`
-		}
-
-		htmlToRplaceWith += `</div>
-	</div>`
-		div.replaceWith(htmlToRplaceWith);
-	});
-
-
-	document.onkeyup = function (e) {
-		if (e.which == 13) {
-			SearchBtn();
-		}
-	}
-</script>
+<script src="~/js/previous.js"></script>

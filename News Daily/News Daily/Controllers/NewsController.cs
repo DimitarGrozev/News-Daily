@@ -33,9 +33,9 @@ namespace News_Daily.Controllers
 						newsQuery.CurrentPage = 1;
 
 					var articles = await this.newsService.GetArticlesForPageAsync(newsQuery.SearchString, newsQuery.SortString, newsQuery.CurrentPage, newsQuery.LanguageString);
-					this.cachedArticles = articles.ToList();
-					newsQuery.Articles = articles.ToList();
-					ViewData["Articles"] = articles.ToList();
+					this.cachedArticles = articles.Item1.ToList();
+					newsQuery.Articles = articles.Item1.ToList();
+					newsQuery.Topic = articles.Item2;
 					if (newsQuery.IsAjax)
 						return View("_Articles", newsQuery);
 					else
@@ -66,7 +66,7 @@ namespace News_Daily.Controllers
 		{
 			var query = JsonConvert.DeserializeObject<NewsQuery>(articles);
 
-			var file =await this.newsService.DownloadToExcelAsync(query.SearchString, query.SortString, query.CurrentPage, query.LanguageString);
+			var file =await this.newsService.DownloadToExcelAsync(query.SearchString, query.SortString, query.CurrentPage, query.LanguageString,query.Topic);
 
 			return File(file,
 			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

@@ -6,7 +6,8 @@ namespace News_Daily.Services.Contracts
 {
 	public interface INewsService
 	{
-		Task<ICollection<Article>> GetArticlesForPageAsync(string searchString, string sortString, int currentPage,string languageString);
-		Task<byte[]> DownloadToExcelAsync(string searchString,string sortString,int currentPage, string language);
+		Task<(ICollection<Article>, string)> GetArticlesForPageAsync(string searchString, string sortString, int currentPage,string languageString);
+		Task<ICollection<Article>> GetTrendingNewsAsync();
+		Task<byte[]> DownloadToExcelAsync(string searchString,string sortString,int currentPage, string language,string topic);
 	}
 }

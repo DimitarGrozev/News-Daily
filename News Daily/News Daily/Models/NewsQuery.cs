@@ -36,5 +36,6 @@ namespace News_Daily.Models
         public ICollection<Article> Articles { get; set; }
 
         public bool IsAjax { get; set; }
+        public string Topic { get; set; }
     }
 }

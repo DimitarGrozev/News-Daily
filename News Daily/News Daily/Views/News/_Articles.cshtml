@@ -2,6 +2,9 @@
 @{
 	Layout = null;
 }
+	<div>
+		<input type="hidden" value="@Model.Topic" class="topic" />
+	</div>
 <div class="container" id="replace-container">
 	<div class="row">
 		@foreach (var report in Model.Articles.Take(5))

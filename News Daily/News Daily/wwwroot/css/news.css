@@ -119,7 +119,7 @@
 }
 
 .download-btn{
-	margin-left:10rem !important;
+	margin-left:20rem !important;
 }
 
 a {
@@ -132,3 +132,7 @@ a {
 		text-decoration: none;
 		cursor: pointer;
 	}
+
+.mybtn {
+	margin: 10px;
+}

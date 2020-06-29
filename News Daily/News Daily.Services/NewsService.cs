@@ -15,21 +15,23 @@ namespace News_Daily.Services
 	public class NewsService : INewsService
 	{
 		private readonly NewsApiClient client;
+		private readonly IConfiguration configuration;
 
 		public NewsService(IConfiguration configuration)
 		{
 			this.client = new NewsApiClient(configuration["api-key"]) ?? throw new ArgumentNullException();
+			this.configuration = configuration;
 		}
-		public async Task<ICollection<Article>> GetArticlesForPageAsync(string searchString, string sortString, int currentPage,string language)
+		public async Task<(ICollection<Article>,string)> GetArticlesForPageAsync(string searchString, string sortString, int currentPage,string language)
 		{
 
-			var response = await ArticleQuery(searchString, sortString, currentPage, language);
-			
+			var response = await GetArticleQueryAsync(searchString, sortString, currentPage, language);
+			var topic = response.Item2;
 
-			if (response.Status.ToString() == Statuses.Ok.ToString())
+			if (response.Item1.Status.ToString() == Statuses.Ok.ToString())
 			{
 				
-				return response.Articles;
+				return (response.Item1.Articles,topic);
 			}
 
 			throw new ArgumentException();
@@ -37,7 +39,14 @@ namespace News_Daily.Services
 		public async Task<ICollection<Article>> GetArticlesForExportAsync(string searchString, string sortString, int currentPage, string language)
 		{
 
-			var response =await ArticleQuery(searchString, sortString, null, language);
+			 var response = await this.client.GetEverythingAsync(new EverythingRequest
+			{
+				Q = searchString,
+				PageSize=40,
+				Language = (Languages)Enum.Parse(typeof(Languages), language ?? "en", true),
+				SortBy = (SortBys)Enum.Parse(typeof(SortBys), sortString ?? "Popularity", true),
+
+			});
 
 
 			if (response.Status.ToString() == Statuses.Ok.ToString())
@@ -47,22 +56,48 @@ namespace News_Daily.Services
 
 			throw new ArgumentException();
 		}
-		public async Task<ArticlesResult> ArticleQuery(string searchString, string sortString, int? currentPage, string language)
+		private async Task<(ArticlesResult,string)> GetArticleQueryAsync(string searchString, string sortString, int? currentPage, string language)
 		{
+			string topic = GetTopicAsync();
 			var response = await this.client.GetEverythingAsync(new EverythingRequest
 			{
-				Q = searchString ?? "Apple",
+				Q = searchString ?? topic,
 				Page = currentPage ?? 1,
+				PageSize=40,
 				Language = (Languages)Enum.Parse(typeof(Languages), language ?? "en", true),
 				SortBy = (SortBys)Enum.Parse(typeof(SortBys), sortString ?? "Popularity", true),
 
 			});
 
-			return response;
+			return (response,topic);
 		}
-		public async Task<byte[]> DownloadToExcelAsync(string searchString,string sortString, int currentPage,string language)
+
+
+
+		private string GetTopicAsync()
 		{
-			searchString = searchString == string.Empty ? null : searchString;
+			var topics = this.configuration.GetSection("topics").GetChildren().ToList().Select(x=>x.Value).ToList();
+			var randomTopic = topics.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
+			return randomTopic;
+		}
+		public async Task<ICollection<Article>> GetTrendingNewsAsync()
+		{
+			var response = await this.client.GetTopHeadlinesAsync(new TopHeadlinesRequest
+			{
+				Q = GetTopicAsync(),
+				Page =  1,
+				PageSize = 3,
+				Language = (Languages)Enum.Parse(typeof(Languages), "en", true),
+
+			});
+			var articles = response.Articles;
+
+			return articles;
+		}
+
+		public async Task<byte[]> DownloadToExcelAsync(string searchString,string sortString, int currentPage,string language,string topic)
+		{
+			searchString = searchString == string.Empty ? topic : searchString;
 			sortString = sortString == string.Empty ? null : sortString;
 			language = language == string.Empty ? null : language;
 			var result =await GetArticlesForExportAsync(searchString, sortString, currentPage, language);
@@ -91,7 +126,7 @@ namespace News_Daily.Services
 					worksheet.Cell(currentRow, 7).Value = article.Url;
 					worksheet.Range(currentRow, 7, currentRow, 11).Merge();
 				}
-				var rngTable = worksheet.Range("B2:K22");
+				var rngTable = worksheet.Range("B2:K42");
 				rngTable.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
 				rngTable.Style.Border.BottomBorder = XLBorderStyleValues.Thin;
 				rngTable.Style.Border.RightBorder = XLBorderStyleValues.Thin;
