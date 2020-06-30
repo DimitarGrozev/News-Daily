@@ -51,16 +51,7 @@ namespace News_Daily.Controllers
 			return RedirectToAction("Index", "Home");
 		}
 
-		public async Task<IActionResult> GetPage(int currentPage)
-		{
-			
-			var articles = this.cachedArticles.Skip(5 * (currentPage - 1)).Take(5);
-			var newsQuery = new NewsQuery()
-			{
-				Articles = articles.ToList()
-			};
-			return View("_Articles", newsQuery);
-		}
+
 
 		public async Task<IActionResult> Download(string articles)
 		{

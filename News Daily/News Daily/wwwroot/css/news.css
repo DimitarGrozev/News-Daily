@@ -136,3 +136,7 @@ a {
 .mybtn {
 	margin: 10px;
 }
+
+#btn-separator{
+	width:20px;
+}
