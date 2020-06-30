@@ -9,17 +9,20 @@ using NewsAPI;
 using NewsAPI.Constants;
 using NewsAPI.Models;
 using Newtonsoft.Json;
+using NToastNotify;
 
 namespace News_Daily.Controllers
 {
 	public class NewsController : Controller
 	{
 		private readonly INewsService newsService;
+		private readonly IToastNotification toastNotification;
 		private List<Article> cachedArticles;
 
-		public NewsController(INewsService newsService)
+		public NewsController(INewsService newsService,IToastNotification toastNotification)
 		{
 			this.newsService = newsService;
+			this.toastNotification = toastNotification;
 			this.cachedArticles = new List<Article>();
 		}
 		public async Task<IActionResult> Index(NewsQuery newsQuery)
@@ -43,7 +46,7 @@ namespace News_Daily.Controllers
 				}
 				catch
 				{
-					//TODO toaster
+					this.toastNotification.AddAlertToastMessage("Something went wrong! Please try again later!");
 					return RedirectToAction("Index", "Home");
 				}
 			}
@@ -55,13 +58,21 @@ namespace News_Daily.Controllers
 
 		public async Task<IActionResult> Download(string articles)
 		{
-			var query = JsonConvert.DeserializeObject<NewsQuery>(articles);
+			try
+			{
+				var query = JsonConvert.DeserializeObject<NewsQuery>(articles);
 
-			var file =await this.newsService.DownloadToExcelAsync(query.SearchString, query.SortString, query.CurrentPage, query.LanguageString,query.Topic);
+				var file = await this.newsService.DownloadToExcelAsync(query.SearchString, query.SortString, query.CurrentPage, query.LanguageString, query.Topic);
 
-			return File(file,
-			"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-						"articles.xlsx");
+				return File(file,
+				"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+							"articles.xlsx");
+			}
+			catch
+			{
+				this.toastNotification.AddAlertToastMessage("Something went wrong! Please try again later!");
+				return RedirectToAction("Index", "News");
+			}
 		}
 	}
 }
