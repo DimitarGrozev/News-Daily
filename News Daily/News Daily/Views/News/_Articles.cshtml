@@ -1,0 +1,40 @@
+﻿@model NewsQuery
+@{
+	Layout = null;
+}
+	<div>
+		<input type="hidden" value="@Model.Topic" class="topic" />
+	</div>
+<div class="container" id="replace-container">
+	<div class="row">
+		@foreach (var report in Model.Articles.Take(5))
+		{
+
+			<div class="d-flex col-12 rp-card">
+				<div class="col-4 rp-img-container">
+					<div class="rp-img " style="background-image:url('@report.UrlToImage');">
+					</div>
+				</div>
+				<div class="d-flex flex-column col-6">
+					<a class="rp-title" href="@report.Url" target="_blank">@report.Title</a>
+
+					<div class="pb-2 d-flex justify-content-between">
+
+						<span class="rp-date">@report.PublishedAt.ToString()</span>
+					</div>
+					<q class="rp-quote">@report.Description</q> <br>
+				</div>
+
+			</div>
+		}
+		@foreach (var report in Model.Articles)
+		{
+			
+			<input type="hidden" class="takeUrlToImage" value="@report.UrlToImage" />
+			<input type="hidden" class="takeURL" value="@report.Url" />
+			<input type="hidden" class="takeTitle" value="@report.Title" />
+			<input type="hidden" class="takePublishedAt" value="@report.PublishedAt.ToString()" />
+			<input type="hidden" class="takeDescription" value="@report.Description" />
+		}
+	</div>
+</div>

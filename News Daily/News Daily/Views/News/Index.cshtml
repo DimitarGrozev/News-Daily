@@ -1,0 +1,160 @@
+﻿
+@{
+	ViewData["Title"] = "Index";
+	int currentPage = 1;
+}
+@model NewsQuery
+<head>
+	<link href="~/css/news.css" rel="stylesheet" />
+</head>
+
+<div>
+	<input type="hidden" value="@Model.Topic" class="topic"/>
+</div>
+<section class="rp-search">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<div class="d-flex form-inline align-content-center justify-content-center">
+					<div class="d-flex">
+						<div class="form-group mx-sm-3 mb-2 ml-2">
+							<label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label>
+							<select class="form-control" asp-items="Model.SortDropdown" id="sort-string">
+								<option selected value="">Sort By</option>
+							</select>
+						</div>
+					</div>
+					<div class="d-flex">
+						<div class="form-group mx-sm-3 mb-2">
+							<label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Language</label>
+							<select class="form-control" asp-items="Model.LanguageDropdown" id="language">
+								<option selected value="">Choose a language</option>
+							</select>
+						</div>
+					</div>
+					<div class="d-flex">
+						<div class="form-group mx-sm-3 mb-2">
+							<input class="form-control" id="searchString" placeholder="Search for ..." value="@Model.SearchString">
+						</div>
+						<button type="submit" class="mb-2 btn-info btn" id="search-btn">Search</button>
+					</div>
+
+					<div class="d-flex">
+						<div class="form-group mx-sm-3 download-btn">
+							<button type="button" class="mb-2 btn-info btn">Export</button>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</section>
+<section class="rp-main">
+
+	<div class="container" id="replace-container">
+		<div class="row">
+			@foreach (var report in Model.Articles.Take(5))
+			{
+
+				<div class="d-flex col-12 rp-card">
+					<div class="col-4 rp-img-container">
+						<div class="rp-img" style="background-image:url('@report.UrlToImage');">
+						</div>
+					</div>
+					<div class="d-flex flex-column col-6">
+						<a class="rp-title" href="@report.Url" target="_blank">@report.Title</a>
+						<div class="pb-2 d-flex justify-content-between">
+
+							<span class="rp-date">@report.PublishedAt.ToString()</span>
+						</div>
+						<q class="rp-quote">@report.Description</q> <br>
+					</div>
+
+				</div>
+			}
+		</div>
+	</div>
+</section>
+<div class="rp-pagination">
+
+	<button type="button" style="display:none" id="prev-btn"
+			class="btn btn-info">
+		Previous
+	</button>
+	<div id="btn-separator"></div>
+	<button id="next-btn"
+			class="btn btn-info">
+		Next
+	</button>
+
+
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/js/download.js"></script>
+<script>
+	var myArr = [];
+</script>
+
+<script src="~/js/search.js"></script>
+
+
+<script>
+	function makeObject(title, description, url, publishedAt, urlToImage) {
+		var article = {
+			Title: title,
+			Description: description,
+			Url: url,
+			PublishedAt: publishedAt,
+			UrlToImage:urlToImage
+		}
+
+		return article;
+	}
+	let page = 1;
+	$(document).on('click', '#next-btn', function (x) {
+		page += 1;
+		if (page > 1) {
+			console.log("wlizam tuk");
+			$('#prev-btn').css("display", "block");
+		}
+		if (page == 8) {
+			$('#next-btn').css("display", "none");
+		}
+		var div = $('#replace-container')
+			var htmlToRplaceWith = `<div class="container" id="replace-container">
+		<div class="row">`
+		if (myArr.length == 0) {
+
+			@foreach(var item in Model.Articles)
+			{
+				@:myArr.push(makeObject("@item.Title", "@item.Description", "@item.Url", "@item.PublishedAt.ToString()", "@item.UrlToImage "));
+
+			}
+		}
+		console.log(myArr);
+			for (let i = (page-1)*5; i <(page-1)*5+ 5; i++) {
+				htmlToRplaceWith += `
+				<div class="d-flex col-12 rp-card">
+					<div class="col-4 rp-img-container">
+						<div class="rp-img" style="background-image:url('${myArr[i].UrlToImage}');">
+						</div>
+					</div>
+					<div class="d-flex flex-column col-6">
+						<a class="rp-title" href="${myArr[i].Url}" target="_blank">${myArr[i].Title}</a>
+						<div class="pb-2 d-flex justify-content-between">
+
+							<span class="rp-date">${myArr[i].PublishedAt}</span>
+						</div>
+						<q class="rp-quote">${myArr[i].Description}</q> <br>
+					</div>
+
+				</div>`
+			}
+
+		htmlToRplaceWith += `</div>
+	</div>`
+			div.replaceWith(htmlToRplaceWith);
+    });
+</script>
+<script src="~/js/previous.js"></script>
