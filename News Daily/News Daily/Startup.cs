@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using News_Daily.Middleware;
 using News_Daily.Services;
 using News_Daily.Services.Contracts;
+using News_Daily.Utilities;
 using NToastNotify;
 
 namespace News_Daily
@@ -27,9 +28,9 @@ namespace News_Daily
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			
-			
-			services.AddTransient<INewsService, NewsService>();
+
+
+			services.AddServices();
 			services.AddControllersWithViews();
 			services.AddRazorPages()
 					.AddRazorRuntimeCompilation();
