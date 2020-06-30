@@ -8,8 +8,10 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using News_Daily.Middleware;
 using News_Daily.Services;
 using News_Daily.Services.Contracts;
+using NToastNotify;
 
 namespace News_Daily
 {
@@ -25,8 +27,18 @@ namespace News_Daily
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+			
+			
 			services.AddTransient<INewsService, NewsService>();
 			services.AddControllersWithViews();
+			services.AddRazorPages()
+					.AddRazorRuntimeCompilation();
+
+			services.AddMvc().AddNToastNotifyToastr(new ToastrOptions()
+			{
+				PositionClass = ToastPositions.TopCenter
+			});
+
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,9 +58,9 @@ namespace News_Daily
 			app.UseStaticFiles();
 
 			app.UseRouting();
-
+			app.UseMiddleware<PageNotFound>();
 			app.UseAuthorization();
-
+			app.UseNToastNotify();
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllerRoute(

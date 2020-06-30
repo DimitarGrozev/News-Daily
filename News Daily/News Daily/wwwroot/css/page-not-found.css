@@ -1,0 +1,7 @@
+﻿
+.mypic {
+	display: flex;
+	width: 880px;
+	height: 880px;
+	background-image: url('../images/pagenotfound.svg');
+}
