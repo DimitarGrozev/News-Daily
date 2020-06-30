@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using News_Daily.Models;
 using News_Daily.Services.Contracts;
-using NewsAPI;
-using NewsAPI.Constants;
-using NewsAPI.Models;
 using NToastNotify;
 
 namespace News_Daily.Controllers

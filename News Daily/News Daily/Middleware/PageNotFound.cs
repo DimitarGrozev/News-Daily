@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace News_Daily.Middleware
 {
-    public class PageNotFound
+	public class PageNotFound
     {
         private readonly RequestDelegate next;
         public PageNotFound(RequestDelegate next)

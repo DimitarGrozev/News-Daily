@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using News_Daily.Models;
 using News_Daily.Services.Contracts;
-using NewsAPI;
-using NewsAPI.Constants;
 using NewsAPI.Models;
 using Newtonsoft.Json;
 using NToastNotify;
